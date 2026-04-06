@@ -1,0 +1,44 @@
+name: CD - Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, xml, sqlite3
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+
+      - name: Copy .env
+        run: cp .env.example .env
+
+      - name: Generate key
+        run: php artisan key:generate
+
+      - name: Build application
+        run: |
+          php artisan config:cache
+          php artisan route:cache
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: laravel-build
+          path: |
+            .
+            !vendor/
+            !node_modules/
+            !.git/
