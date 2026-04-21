@@ -1,0 +1,20 @@
+name: Discord Notification
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Discord notification
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          title: "GitHub Actions"
+          description: "Repositório: ${{ github.repository }}"
+          status: ${{ job.status }}
+          username: "GitHub Actions Bot"
